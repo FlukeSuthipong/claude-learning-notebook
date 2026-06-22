@@ -38,6 +38,7 @@
       min-height: 78vh;
       display: grid;
       align-items: end;
+      position: relative;
       padding: 38px clamp(18px, 4vw, 64px) 34px;
       color: var(--white);
       background:
@@ -101,6 +102,31 @@
       border-color: #f3d58b;
       background: #f3d58b;
       color: #16201c;
+    }
+
+    .icon-button {
+      width: 44px;
+      min-width: 44px;
+      padding: 0;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .hero-gear {
+      position: absolute;
+      right: clamp(18px, 4vw, 64px);
+      bottom: 22px;
+      z-index: 2;
+      border-color: rgba(255,255,255,.22);
+      background: rgba(18, 31, 27, .28);
+      color: rgba(255,255,255,.82);
+    }
+
+    .hero-gear:hover,
+    .hero-gear:focus-visible {
+      border-color: #f3d58b;
+      background: rgba(243, 213, 139, .18);
+      color: #fff;
     }
 
     main {
@@ -259,6 +285,132 @@
       color: var(--white);
     }
 
+    .manager-panel {
+      margin: 0 0 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.94);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .manager-panel[hidden] {
+      display: none;
+    }
+
+    .card-admin-actions {
+      display: none;
+    }
+
+    body.manager-open .card-admin-actions {
+      display: flex;
+    }
+
+    .manager-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px;
+      background: #e8efe8;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .manager-head h3 {
+      margin: 0 0 4px;
+      font-size: 1.15rem;
+    }
+
+    .manager-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .manager-actions, .card-admin-actions {
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .manager-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: #304039;
+      font-size: .88rem;
+      font-weight: 800;
+    }
+
+    .field input, .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 11px;
+      color: var(--ink);
+      background: #fffefa;
+      font: inherit;
+    }
+
+    .field textarea {
+      min-height: 86px;
+    }
+
+    .form-status {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .small-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+      color: #25342f;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .small-button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .small-button.warning {
+      border-color: var(--accent-2);
+      color: var(--accent-2);
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 22px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.72);
+      color: var(--muted);
+      text-align: center;
+    }
+
     .worksheet-grid {
       display: grid;
       grid-template-columns: 1.1fr .9fr;
@@ -353,12 +505,16 @@
     }
 
     @media (max-width: 900px) {
-      .course-map, .video-grid, .worksheet-grid {
+      .course-map, .video-grid, .worksheet-grid, .manager-body {
         grid-template-columns: 1fr;
       }
 
       .section-head {
         align-items: start;
+        flex-direction: column;
+      }
+
+      .manager-head {
         flex-direction: column;
       }
     }
@@ -419,6 +575,7 @@
         <a class="button" href="#schedule">ดูแผนการเรียน</a>
       </div>
     </div>
+    <button class="button icon-button hero-gear" type="button" id="manager-toggle" aria-label="ตั้งค่า" aria-controls="lesson-manager" aria-expanded="false">⚙</button>
   </header>
 
   <main>
@@ -462,7 +619,51 @@
         <p>แต่ละคลิปมีเป้าหมายการเรียนและงานหลังดู เพื่อให้เพื่อนร่วมงานไม่ได้แค่ดูผ่าน ๆ แต่มีของที่ลองทำจริง</p>
       </div>
 
-      <div class="video-grid">
+      <form class="manager-panel" id="lesson-manager" hidden>
+        <div class="manager-head">
+          <div>
+            <h3>จัดการบทเรียน</h3>
+            <p>เพิ่ม แก้ไข ลบ หรือจัดลำดับวิดีโอได้จากหน้านี้ ข้อมูลจะถูกเก็บไว้ในเบราว์เซอร์เครื่องที่เปิดไฟล์</p>
+          </div>
+          <div class="manager-actions">
+            <button class="small-button" type="button" id="clear-form">ล้างฟอร์ม</button>
+            <button class="small-button warning" type="button" id="reset-lessons">กู้คืนค่าเริ่มต้น</button>
+          </div>
+        </div>
+        <div class="manager-body">
+          <input type="hidden" id="lesson-id">
+          <div class="field">
+            <label for="lesson-title">ชื่อบทเรียน</label>
+            <input id="lesson-title" required placeholder="เช่น สอน Claude ช่วยงานเอกสาร">
+          </div>
+          <div class="field">
+            <label for="lesson-channel">ชื่อช่อง</label>
+            <input id="lesson-channel" required placeholder="เช่น borntodev">
+          </div>
+          <div class="field">
+            <label for="lesson-category">หมวดบทเรียน</label>
+            <input id="lesson-category" required placeholder="เช่น เริ่มต้น, Cowork, Skill">
+          </div>
+          <div class="field">
+            <label for="lesson-url">ลิงก์ YouTube</label>
+            <input id="lesson-url" required placeholder="https://youtu.be/VIDEO_ID">
+          </div>
+          <div class="field full">
+            <label for="lesson-description">คำอธิบายบทเรียน</label>
+            <textarea id="lesson-description" required placeholder="สรุปว่าคลิปนี้ควรใช้เรียนเรื่องอะไร"></textarea>
+          </div>
+          <div class="field full">
+            <label for="lesson-tasks">งานหลังดูคลิป หนึ่งบรรทัดต่อหนึ่งข้อ</label>
+            <textarea id="lesson-tasks" required placeholder="ลองเขียน prompt สำหรับงานจริง 1 งาน&#10;สรุปสิ่งที่นำไปใช้กับทีมได้"></textarea>
+          </div>
+          <div class="manager-actions field full">
+            <button class="small-button primary" type="submit" id="save-lesson">บันทึกบทเรียน</button>
+          </div>
+          <p class="form-status" id="form-status" role="status"></p>
+        </div>
+      </form>
+
+      <div class="video-grid" id="video-grid">
         <article class="video-card">
           <div class="thumb">
             <iframe src="https://www.youtube.com/embed/YkwGwMh7g7c" title="แนะนำการใช้งาน Claude หน้าเมนูต่างๆ" allowfullscreen></iframe>
@@ -707,5 +908,312 @@
       </div>
     </section>
   </main>
+  <script>
+    const STORAGE_KEY = "claudeLessonNotebook.lessons.v2";
+    const defaultLessons = [
+      {
+        id: "lesson-readyplanet-menu",
+        title: "แนะนำการใช้งาน Claude หน้าเมนูต่าง ๆ",
+        channel: "Readyplanet",
+        category: "เริ่มต้น",
+        url: "https://youtu.be/YkwGwMh7g7c",
+        videoId: "YkwGwMh7g7c",
+        description: "ใช้เป็นคลิปเปิดคอร์ส เพื่อให้ทุกคนเห็นภาพรวมของหน้าใช้งาน เมนู และจุดที่ควรรู้ก่อนเริ่มทำงานจริง",
+        tasks: [
+          "จดชื่อเมนูหรือฟีเจอร์ที่คิดว่าจะใช้กับงานตัวเองได้ 3 อย่าง",
+          "ลองเปิด Claude แล้วสร้างแชตใหม่สำหรับงานหนึ่งงาน"
+        ]
+      },
+      {
+        id: "lesson-borntodev-ask-prame",
+        title: "Ask Prame: Claude / Claude Code / Claude Cowork ใช้ยังไง?",
+        channel: "borntodev",
+        category: "ภาพรวมเครื่องมือ",
+        url: "https://youtu.be/8Qj7h7W1sLc",
+        videoId: "8Qj7h7W1sLc",
+        description: "เหมาะสำหรับจับภาพรวมว่า Claude แต่ละโหมดต่างกันอย่างไร และควรเลือกใช้กับงานแบบไหน",
+        tasks: [
+          "แยกงานของตัวเองเป็น 3 กลุ่ม: ถามตอบทั่วไป, งานโค้ด, งานร่วมกับทีม",
+          "เขียนตัวอย่างโจทย์ 1 ข้อสำหรับแต่ละกลุ่มงาน"
+        ]
+      },
+      {
+        id: "lesson-borntodev-cowork-review",
+        title: "‘Claude Cowork’ เพื่อนร่วมงานคนใหม่?! | Dev รีวิววว ! SS2",
+        channel: "borntodev",
+        category: "ทำงานร่วมกัน",
+        url: "https://youtu.be/GLAuHZbxfuE",
+        videoId: "GLAuHZbxfuE",
+        description: "ใช้ชวนทีมคุยเรื่องบทบาทของ AI ในงานจริง ว่าควรให้ช่วยตรงไหน และมนุษย์ยังต้องตรวจทานอะไร",
+        tasks: [
+          "เลือกงานที่ใช้เวลาซ้ำ ๆ ในทีม 1 งาน แล้วเขียนขั้นตอนปัจจุบัน",
+          "ระบุจุดที่ Claude ช่วยร่าง สรุป ตรวจ หรือเสนอทางเลือกได้"
+        ]
+      },
+      {
+        id: "lesson-borntodev-99",
+        title: "สอน Claude ช่วยงาน 99% ในชีวิตคุณ",
+        channel: "borntodev",
+        category: "ใช้งานจริง",
+        url: "https://youtu.be/o7scP0Lhs0E",
+        videoId: "o7scP0Lhs0E",
+        description: "วางไว้เป็นบทฝึกใช้งานกว้าง ๆ ให้ผู้เรียนลองเอา Claude ไปช่วยงานสื่อสาร เอกสาร วางแผน และคิดไอเดีย",
+        tasks: [
+          "เลือกงานหนึ่งงานที่ต้องทำในสัปดาห์นี้ แล้วให้ Claude ช่วยร่างเวอร์ชันแรก",
+          "ปรับคำสั่งอย่างน้อย 2 รอบ แล้วเทียบว่าผลลัพธ์ดีขึ้นอย่างไร"
+        ]
+      },
+      {
+        id: "lesson-borntodev-live-99",
+        title: "[LIVE] สอน Claude ช่วยงาน 99% ในชีวิตคุณ",
+        channel: "borntodev",
+        category: "คลาสยาว",
+        url: "https://youtu.be/Zrlo1sAcUn8",
+        videoId: "Zrlo1sAcUn8",
+        description: "ใช้เป็นคลิปเสริมสำหรับคนที่อยากเห็นการสาธิตแบบละเอียด เหมาะกับการแบ่งดูเป็นช่วง ๆ แล้วทำใบงานตาม",
+        tasks: [
+          "หยุดคลิปทุกครั้งที่เจอตัวอย่าง prompt ที่น่าสนใจ แล้วดัดแปลงให้เข้ากับงานตัวเอง",
+          "เลือก prompt ที่ดีที่สุด 1 อันมาแชร์กับทีม"
+        ]
+      },
+      {
+        id: "lesson-9expert-cowork",
+        title: "ลองใช้ Claude Cowork โหมดใหม่ เปลี่ยนโลกการทำงาน",
+        channel: "9Expert",
+        category: "Cowork",
+        url: "https://youtu.be/gYXE8LC1h4o",
+        videoId: "gYXE8LC1h4o",
+        description: "ใช้ต่อจากบท Cowork เพื่อให้เห็นอีกมุมมองหนึ่งของการทำงานร่วมกับ AI และการประยุกต์กับงานในองค์กร",
+        tasks: [
+          "เขียนตัวอย่าง workflow ที่อยากให้ AI ช่วยตั้งแต่ต้นจนจบ 1 เรื่อง",
+          "กำหนดจุดตรวจทานโดยมนุษย์อย่างน้อย 2 จุด"
+        ]
+      },
+      {
+        id: "lesson-third-skill-agent",
+        title: "เจาะลึกวิธีการสร้าง SKILL สำหรับปั้น AI Agent อย่างละเอียด",
+        channel: "Third Leademption",
+        category: "ต่อยอด",
+        url: "https://youtu.be/VaEuKA5X-HE",
+        videoId: "VaEuKA5X-HE",
+        description: "เหมาะเป็นบทสุดท้ายสำหรับคนที่อยากทำให้ AI มีความสามารถเฉพาะทาง เช่น คู่มือทีม ขั้นตอนซ้ำ ๆ หรือแนวทางทำงานมาตรฐาน",
+        tasks: [
+          "เลือกงานซ้ำในทีม 1 งาน แล้วเขียนกติกา/ขั้นตอนที่ AI ควรรู้",
+          "ร่าง Skill ฉบับแรกเป็นหัวข้อ: เป้าหมาย, อินพุต, ขั้นตอน, ผลลัพธ์"
+        ]
+      }
+    ];
+
+    const form = document.getElementById("lesson-manager");
+    const managerToggle = document.getElementById("manager-toggle");
+    const grid = document.getElementById("video-grid");
+    const statusText = document.getElementById("form-status");
+    const fields = {
+      id: document.getElementById("lesson-id"),
+      title: document.getElementById("lesson-title"),
+      channel: document.getElementById("lesson-channel"),
+      category: document.getElementById("lesson-category"),
+      url: document.getElementById("lesson-url"),
+      description: document.getElementById("lesson-description"),
+      tasks: document.getElementById("lesson-tasks")
+    };
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getVideoId(url) {
+      const trimmed = url.trim();
+      const patterns = [
+        /youtu\.be\/([A-Za-z0-9_-]{6,})/,
+        /youtube\.com\/watch\?v=([A-Za-z0-9_-]{6,})/,
+        /youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/,
+        /youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/
+      ];
+      for (const pattern of patterns) {
+        const match = trimmed.match(pattern);
+        if (match) return match[1];
+      }
+      return trimmed.length >= 6 ? trimmed : "";
+    }
+
+    function loadLessons() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : [...defaultLessons];
+      } catch {
+        return [...defaultLessons];
+      }
+    }
+
+    function saveLessons(nextLessons) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextLessons));
+    }
+
+    let lessons = loadLessons();
+
+    function setManagerOpen(isOpen) {
+      form.hidden = !isOpen;
+      managerToggle.setAttribute("aria-expanded", String(isOpen));
+      document.body.classList.toggle("manager-open", isOpen);
+      if (isOpen) {
+        form.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function renderLessons() {
+      if (!lessons.length) {
+        grid.innerHTML = '<div class="empty-state">ยังไม่มีบทเรียน กรอกข้อมูลด้านบนแล้วกดบันทึกบทเรียนได้เลย</div>';
+        return;
+      }
+
+      grid.innerHTML = lessons.map((lesson, index) => {
+        const tasks = lesson.tasks
+          .map(task => `<li>${escapeHtml(task)}</li>`)
+          .join("");
+
+        return `
+          <article class="video-card" data-lesson-id="${escapeHtml(lesson.id)}">
+            <div class="thumb">
+              <iframe src="https://www.youtube.com/embed/${escapeHtml(lesson.videoId)}" title="${escapeHtml(lesson.title)}" allowfullscreen></iframe>
+            </div>
+            <div class="video-body">
+              <div class="meta"><span class="tag channel">${escapeHtml(lesson.channel)}</span><span class="tag time">${escapeHtml(lesson.category)}</span></div>
+              <h3>${escapeHtml(lesson.title)}</h3>
+              <p>${escapeHtml(lesson.description)}</p>
+              <ul class="prompt-list">${tasks}</ul>
+              <div class="video-actions">
+                <a class="link-button fill" href="${escapeHtml(lesson.url)}" target="_blank" rel="noopener">เปิดบน YouTube</a>
+                <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+              </div>
+              <div class="card-admin-actions" aria-label="จัดการ ${escapeHtml(lesson.title)}">
+                <button class="small-button" type="button" data-action="edit" data-index="${index}">แก้ไข</button>
+                <button class="small-button" type="button" data-action="up" data-index="${index}" ${index === 0 ? "disabled" : ""}>ขึ้น</button>
+                <button class="small-button" type="button" data-action="down" data-index="${index}" ${index === lessons.length - 1 ? "disabled" : ""}>ลง</button>
+                <button class="small-button warning" type="button" data-action="delete" data-index="${index}">ลบ</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function setStatus(message) {
+      statusText.textContent = message;
+      if (message) {
+        window.setTimeout(() => {
+          if (statusText.textContent === message) statusText.textContent = "";
+        }, 3200);
+      }
+    }
+
+    function clearForm() {
+      form.reset();
+      fields.id.value = "";
+      document.getElementById("save-lesson").textContent = "บันทึกบทเรียน";
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const videoId = getVideoId(fields.url.value);
+      if (!videoId) {
+        setStatus("ลิงก์ YouTube ยังไม่ถูกต้อง ลองใช้ลิงก์แบบ https://youtu.be/VIDEO_ID");
+        fields.url.focus();
+        return;
+      }
+
+      const lesson = {
+        id: fields.id.value || `lesson-${Date.now()}`,
+        title: fields.title.value.trim(),
+        channel: fields.channel.value.trim(),
+        category: fields.category.value.trim(),
+        url: fields.url.value.trim(),
+        videoId,
+        description: fields.description.value.trim(),
+        tasks: fields.tasks.value.split("\n").map(task => task.trim()).filter(Boolean)
+      };
+
+      if (fields.id.value) {
+        lessons = lessons.map(item => item.id === lesson.id ? lesson : item);
+        setStatus("แก้ไขบทเรียนแล้ว");
+      } else {
+        lessons = [...lessons, lesson];
+        setStatus("เพิ่มบทเรียนใหม่แล้ว");
+      }
+
+      saveLessons(lessons);
+      renderLessons();
+      clearForm();
+    });
+
+    grid.addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const index = Number(button.dataset.index);
+      const action = button.dataset.action;
+      const lesson = lessons[index];
+
+      if (action === "edit") {
+        fields.id.value = lesson.id;
+        fields.title.value = lesson.title;
+        fields.channel.value = lesson.channel;
+        fields.category.value = lesson.category;
+        fields.url.value = lesson.url;
+        fields.description.value = lesson.description;
+        fields.tasks.value = lesson.tasks.join("\n");
+        document.getElementById("save-lesson").textContent = "บันทึกการแก้ไข";
+        setManagerOpen(true);
+        setStatus("กำลังแก้ไขบทเรียนนี้");
+        return;
+      }
+
+      if (action === "delete") {
+        if (!window.confirm(`ลบบทเรียน "${lesson.title}" ใช่ไหม?`)) return;
+        lessons = lessons.filter((_, itemIndex) => itemIndex !== index);
+        saveLessons(lessons);
+        renderLessons();
+        setStatus("ลบบทเรียนแล้ว");
+        return;
+      }
+
+      if (action === "up" && index > 0) {
+        [lessons[index - 1], lessons[index]] = [lessons[index], lessons[index - 1]];
+      }
+
+      if (action === "down" && index < lessons.length - 1) {
+        [lessons[index + 1], lessons[index]] = [lessons[index], lessons[index + 1]];
+      }
+
+      saveLessons(lessons);
+      renderLessons();
+      setStatus("จัดลำดับบทเรียนแล้ว");
+    });
+
+    document.getElementById("clear-form").addEventListener("click", () => {
+      clearForm();
+      setStatus("ล้างฟอร์มแล้ว");
+    });
+
+    managerToggle.addEventListener("click", () => {
+      setManagerOpen(form.hidden);
+    });
+
+    document.getElementById("reset-lessons").addEventListener("click", () => {
+      if (!window.confirm("กู้คืนบทเรียนเริ่มต้น 7 คลิป และลบรายการที่แก้ไว้ในเบราว์เซอร์นี้ใช่ไหม?")) return;
+      lessons = [...defaultLessons];
+      saveLessons(lessons);
+      clearForm();
+      renderLessons();
+      setStatus("กู้คืนบทเรียนเริ่มต้นแล้ว");
+    });
+
+    renderLessons();
+  </script>
 </body>
 </html>
