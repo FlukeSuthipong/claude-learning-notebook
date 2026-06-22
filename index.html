@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>สมุดสื่อการสอน Claude จาก YouTube</title>
+  <style>
+    :root {
+      --ink: #19201d;
+      --muted: #5e6a63;
+      --line: #d8ded7;
+      --paper: #fbfaf6;
+      --soft: #eef3ea;
+      --accent: #1d6f5f;
+      --accent-2: #b4472c;
+      --gold: #b18424;
+      --white: #ffffff;
+      --shadow: 0 18px 38px rgba(34, 46, 39, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(251,250,246,.94), rgba(251,250,246,.98)),
+        url("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1800&q=80");
+      background-size: cover;
+      background-attachment: fixed;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .hero {
+      min-height: 78vh;
+      display: grid;
+      align-items: end;
+      padding: 38px clamp(18px, 4vw, 64px) 34px;
+      color: var(--white);
+      background:
+        linear-gradient(90deg, rgba(18, 31, 27, .86), rgba(18, 31, 27, .48) 58%, rgba(18, 31, 27, .18)),
+        url("https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1900&q=82");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero-inner {
+      max-width: 940px;
+      padding-bottom: 34px;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: #f3d58b;
+      font-size: .92rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 860px;
+      font-size: clamp(2.25rem, 7vw, 5.25rem);
+      line-height: 1.02;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 20px 0 0;
+      color: rgba(255,255,255,.9);
+      font-size: clamp(1.02rem, 2vw, 1.25rem);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 8px;
+      background: rgba(255,255,255,.13);
+      color: var(--white);
+      font-weight: 700;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .button.primary {
+      border-color: #f3d58b;
+      background: #f3d58b;
+      color: #16201c;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 70px;
+    }
+
+    section {
+      margin: 42px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.15rem);
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      max-width: 560px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .course-map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .step, .video-card, .worksheet, .note-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.9);
+      box-shadow: var(--shadow);
+    }
+
+    .step {
+      min-height: 136px;
+      padding: 16px;
+    }
+
+    .step strong {
+      display: block;
+      color: var(--accent);
+      font-size: .9rem;
+    }
+
+    .step h3 {
+      margin: 6px 0 6px;
+      font-size: 1.05rem;
+      line-height: 1.35;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .video-card {
+      overflow: hidden;
+    }
+
+    .thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #111;
+    }
+
+    .thumb iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .video-body {
+      padding: 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: #304039;
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .tag.channel { background: #e5f1ee; color: #0f6655; }
+    .tag.time { background: #f6edda; color: #795719; }
+
+    .video-body h3 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      line-height: 1.36;
+      letter-spacing: 0;
+    }
+
+    .video-body p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    .video-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .link-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+      background: var(--white);
+    }
+
+    .link-button.fill {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .worksheet-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .worksheet, .note-box {
+      padding: 18px;
+    }
+
+    .worksheet h3, .note-box h3 {
+      margin: 0 0 12px;
+      font-size: 1.18rem;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist label {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: #2d3934;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 4px;
+      accent-color: var(--accent);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 112px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--ink);
+      background: #fffefa;
+      font: inherit;
+    }
+
+    .prompt-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .prompt-list li::marker { color: var(--accent-2); font-weight: 700; }
+
+    .schedule {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow);
+    }
+
+    .schedule th, .schedule td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .schedule th {
+      background: #e8efe8;
+      color: #25342f;
+      font-size: .92rem;
+    }
+
+    .schedule tr:last-child td { border-bottom: 0; }
+
+    .footer-note {
+      margin-top: 34px;
+      padding: 16px;
+      border-left: 4px solid var(--gold);
+      background: rgba(255,255,255,.86);
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .course-map, .video-grid, .worksheet-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .hero {
+        min-height: 72vh;
+        padding: 28px 18px;
+      }
+
+      main {
+        width: min(100% - 24px, 1180px);
+        padding-top: 24px;
+      }
+
+      .schedule {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .hero {
+        min-height: auto;
+        color: #111;
+        background: #fff;
+        padding: 20px 0;
+      }
+
+      .button, iframe, .video-actions {
+        display: none;
+      }
+
+      main {
+        width: 100%;
+        padding: 0;
+      }
+
+      .video-card, .worksheet, .note-box, .step, .schedule {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Claude Self-Learning Notebook / YouTube Learning Path</p>
+      <h1>สมุดสื่อการสอน Claude สำหรับส่งต่อให้ทีมเรียนตามได้</h1>
+      <p>รวบรวมบทเรียนจากช่อง Readyplanet, borntodev, 9Expert และ Third Leademption ให้กลายเป็นเส้นทางเรียนแบบมีลำดับ พร้อมใบงานสรุปและโจทย์ทดลองใช้หลังดูคลิป</p>
+      <div class="actions">
+        <a class="button primary" href="#videos">เริ่มเรียนจากวิดีโอ</a>
+        <a class="button" href="#worksheet">ไปที่ใบงาน</a>
+        <a class="button" href="#schedule">ดูแผนการเรียน</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section aria-labelledby="map-title">
+      <div class="section-head">
+        <div>
+          <h2 id="map-title">โครงสร้างบทเรียน</h2>
+        </div>
+        <p>ออกแบบให้คนที่ยังไม่เคยใช้ Claude ค่อย ๆ เริ่มจากหน้าตาโปรแกรม ไปจนถึงการประยุกต์ใช้กับงานจริงและการต่อยอดเป็น Agent/Skill</p>
+      </div>
+
+      <div class="course-map">
+        <article class="step">
+          <strong>บทที่ 1</strong>
+          <h3>รู้จัก Claude และเมนูหลัก</h3>
+          <p>เข้าใจหน้าจอ เครื่องมือ และวิธีเริ่มต้นใช้งานโดยไม่หลงทาง</p>
+        </article>
+        <article class="step">
+          <strong>บทที่ 2</strong>
+          <h3>ใช้ Claude กับงานประจำวัน</h3>
+          <p>ฝึกตั้งคำถาม สรุปงาน เขียนเอกสาร และวางแผนงานให้ได้ผลลัพธ์ที่ดีขึ้น</p>
+        </article>
+        <article class="step">
+          <strong>บทที่ 3</strong>
+          <h3>Claude Code และ Cowork</h3>
+          <p>เห็นภาพการทำงานร่วมกับ AI ในบริบททีม งานเอกสาร และงานพัฒนา</p>
+        </article>
+        <article class="step">
+          <strong>บทที่ 4</strong>
+          <h3>ต่อยอดเป็น Skill/Agent</h3>
+          <p>เข้าใจแนวคิดการสร้างความสามารถเฉพาะทางให้ AI ช่วยงานซ้ำ ๆ ได้เป็นระบบ</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="videos" aria-labelledby="video-title">
+      <div class="section-head">
+        <div>
+          <h2 id="video-title">คลังวิดีโอบทเรียน</h2>
+        </div>
+        <p>แต่ละคลิปมีเป้าหมายการเรียนและงานหลังดู เพื่อให้เพื่อนร่วมงานไม่ได้แค่ดูผ่าน ๆ แต่มีของที่ลองทำจริง</p>
+      </div>
+
+      <div class="video-grid">
+        <article class="video-card">
+          <div class="thumb">
+            <iframe src="https://www.youtube.com/embed/YkwGwMh7g7c" title="แนะนำการใช้งาน Claude หน้าเมนูต่างๆ" allowfullscreen></iframe>
+          </div>
+          <div class="video-body">
+            <div class="meta"><span class="tag channel">Readyplanet</span><span class="tag time">เริ่มต้น</span></div>
+            <h3>แนะนำการใช้งาน Claude หน้าเมนูต่าง ๆ</h3>
+            <p>ใช้เป็นคลิปเปิดคอร์ส เพื่อให้ทุกคนเห็นภาพรวมของหน้าใช้งาน เมนู และจุดที่ควรรู้ก่อนเริ่มทำงานจริง</p>
+            <ul class="prompt-list">
+              <li>จดชื่อเมนูหรือฟีเจอร์ที่คิดว่าจะใช้กับงานตัวเองได้ 3 อย่าง</li>
+              <li>ลองเปิด Claude แล้วสร้างแชตใหม่สำหรับงานหนึ่งงาน</li>
+            </ul>
+            <div class="video-actions">
+              <a class="link-button fill" href="https://youtu.be/YkwGwMh7g7c" target="_blank" rel="noopener">เปิดบน YouTube</a>
+              <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="video-card">
+          <div class="thumb">
+            <iframe src="https://www.youtube.com/embed/8Qj7h7W1sLc" title="Ask Prame Claude Claude Code Claude Cowork ใช้ยังไง" allowfullscreen></iframe>
+          </div>
+          <div class="video-body">
+            <div class="meta"><span class="tag channel">borntodev</span><span class="tag time">ภาพรวมเครื่องมือ</span></div>
+            <h3>Ask Prame: Claude / Claude Code / Claude Cowork ใช้ยังไง?</h3>
+            <p>เหมาะสำหรับจับภาพรวมว่า Claude แต่ละโหมดต่างกันอย่างไร และควรเลือกใช้กับงานแบบไหน</p>
+            <ul class="prompt-list">
+              <li>แยกงานของตัวเองเป็น 3 กลุ่ม: ถามตอบทั่วไป, งานโค้ด, งานร่วมกับทีม</li>
+              <li>เขียนตัวอย่างโจทย์ 1 ข้อสำหรับแต่ละกลุ่มงาน</li>
+            </ul>
+            <div class="video-actions">
+              <a class="link-button fill" href="https://youtu.be/8Qj7h7W1sLc" target="_blank" rel="noopener">เปิดบน YouTube</a>
+              <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="video-card">
+          <div class="thumb">
+            <iframe src="https://www.youtube.com/embed/GLAuHZbxfuE" title="Claude Cowork เพื่อนร่วมงานคนใหม่" allowfullscreen></iframe>
+          </div>
+          <div class="video-body">
+            <div class="meta"><span class="tag channel">borntodev</span><span class="tag time">ทำงานร่วมกัน</span></div>
+            <h3>‘Claude Cowork’ เพื่อนร่วมงานคนใหม่?! | Dev รีวิววว ! SS2</h3>
+            <p>ใช้ชวนทีมคุยเรื่องบทบาทของ AI ในงานจริง ว่าควรให้ช่วยตรงไหน และมนุษย์ยังต้องตรวจทานอะไร</p>
+            <ul class="prompt-list">
+              <li>เลือกงานที่ใช้เวลาซ้ำ ๆ ในทีม 1 งาน แล้วเขียนขั้นตอนปัจจุบัน</li>
+              <li>ระบุจุดที่ Claude ช่วยร่าง สรุป ตรวจ หรือเสนอทางเลือกได้</li>
+            </ul>
+            <div class="video-actions">
+              <a class="link-button fill" href="https://youtu.be/GLAuHZbxfuE" target="_blank" rel="noopener">เปิดบน YouTube</a>
+              <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="video-card">
+          <div class="thumb">
+            <iframe src="https://www.youtube.com/embed/o7scP0Lhs0E" title="สอน Claude ช่วยงาน 99% ในชีวิตคุณ" allowfullscreen></iframe>
+          </div>
+          <div class="video-body">
+            <div class="meta"><span class="tag channel">borntodev</span><span class="tag time">ใช้งานจริง</span></div>
+            <h3>สอน Claude ช่วยงาน 99% ในชีวิตคุณ</h3>
+            <p>วางไว้เป็นบทฝึกใช้งานกว้าง ๆ ให้ผู้เรียนลองเอา Claude ไปช่วยงานสื่อสาร เอกสาร วางแผน และคิดไอเดีย</p>
+            <ul class="prompt-list">
+              <li>เลือกงานหนึ่งงานที่ต้องทำในสัปดาห์นี้ แล้วให้ Claude ช่วยร่างเวอร์ชันแรก</li>
+              <li>ปรับคำสั่งอย่างน้อย 2 รอบ แล้วเทียบว่าผลลัพธ์ดีขึ้นอย่างไร</li>
+            </ul>
+            <div class="video-actions">
+              <a class="link-button fill" href="https://youtu.be/o7scP0Lhs0E" target="_blank" rel="noopener">เปิดบน YouTube</a>
+              <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="video-card">
+          <div class="thumb">
+            <iframe src="https://www.youtube.com/embed/Zrlo1sAcUn8" title="LIVE สอน Claude ช่วยงาน 99% ในชีวิตคุณ" allowfullscreen></iframe>
+          </div>
+          <div class="video-body">
+            <div class="meta"><span class="tag channel">borntodev</span><span class="tag time">คลาสยาว</span></div>
+            <h3>[LIVE] สอน Claude ช่วยงาน 99% ในชีวิตคุณ</h3>
+            <p>ใช้เป็นคลิปเสริมสำหรับคนที่อยากเห็นการสาธิตแบบละเอียด เหมาะกับการแบ่งดูเป็นช่วง ๆ แล้วทำใบงานตาม</p>
+            <ul class="prompt-list">
+              <li>หยุดคลิปทุกครั้งที่เจอตัวอย่าง prompt ที่น่าสนใจ แล้วดัดแปลงให้เข้ากับงานตัวเอง</li>
+              <li>เลือก prompt ที่ดีที่สุด 1 อันมาแชร์กับทีม</li>
+            </ul>
+            <div class="video-actions">
+              <a class="link-button fill" href="https://youtu.be/Zrlo1sAcUn8" target="_blank" rel="noopener">เปิดบน YouTube</a>
+              <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="video-card">
+          <div class="thumb">
+            <iframe src="https://www.youtube.com/embed/gYXE8LC1h4o" title="ลองใช้ Claude Cowork โหมดใหม่ เปลี่ยนโลกการทำงาน" allowfullscreen></iframe>
+          </div>
+          <div class="video-body">
+            <div class="meta"><span class="tag channel">9Expert</span><span class="tag time">Cowork</span></div>
+            <h3>ลองใช้ Claude Cowork โหมดใหม่ เปลี่ยนโลกการทำงาน</h3>
+            <p>ใช้ต่อจากบท Cowork เพื่อให้เห็นอีกมุมมองหนึ่งของการทำงานร่วมกับ AI และการประยุกต์กับงานในองค์กร</p>
+            <ul class="prompt-list">
+              <li>เขียนตัวอย่าง workflow ที่อยากให้ AI ช่วยตั้งแต่ต้นจนจบ 1 เรื่อง</li>
+              <li>กำหนดจุดตรวจทานโดยมนุษย์อย่างน้อย 2 จุด</li>
+            </ul>
+            <div class="video-actions">
+              <a class="link-button fill" href="https://youtu.be/gYXE8LC1h4o" target="_blank" rel="noopener">เปิดบน YouTube</a>
+              <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="video-card">
+          <div class="thumb">
+            <iframe src="https://www.youtube.com/embed/VaEuKA5X-HE" title="เจาะลึกวิธีการสร้าง SKILL สำหรับปั้น AI Agent" allowfullscreen></iframe>
+          </div>
+          <div class="video-body">
+            <div class="meta"><span class="tag channel">Third Leademption</span><span class="tag time">ต่อยอด</span></div>
+            <h3>เจาะลึกวิธีการสร้าง SKILL สำหรับปั้น AI Agent อย่างละเอียด</h3>
+            <p>เหมาะเป็นบทสุดท้ายสำหรับคนที่อยากทำให้ AI มีความสามารถเฉพาะทาง เช่น คู่มือทีม ขั้นตอนซ้ำ ๆ หรือแนวทางทำงานมาตรฐาน</p>
+            <ul class="prompt-list">
+              <li>เลือกงานซ้ำในทีม 1 งาน แล้วเขียนกติกา/ขั้นตอนที่ AI ควรรู้</li>
+              <li>ร่าง Skill ฉบับแรกเป็นหัวข้อ: เป้าหมาย, อินพุต, ขั้นตอน, ผลลัพธ์</li>
+            </ul>
+            <div class="video-actions">
+              <a class="link-button fill" href="https://youtu.be/VaEuKA5X-HE" target="_blank" rel="noopener">เปิดบน YouTube</a>
+              <a class="link-button" href="#worksheet">บันทึกสิ่งที่ได้</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="schedule" aria-labelledby="schedule-title">
+      <div class="section-head">
+        <div>
+          <h2 id="schedule-title">แผนการเรียนแนะนำ</h2>
+        </div>
+        <p>เลือกใช้ได้ทั้งแบบเรียนเอง 1 วัน หรือแบ่งเป็น 4 สัปดาห์สำหรับทีมที่อยากทดลองใช้จริงระหว่างเรียน</p>
+      </div>
+
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th>ช่วงเรียน</th>
+            <th>วิดีโอที่ดู</th>
+            <th>ผลลัพธ์ที่ต้องได้</th>
+            <th>กิจกรรมทีม</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>รอบที่ 1: เริ่มต้น</td>
+            <td>Readyplanet + Ask Prame</td>
+            <td>เข้าใจเมนูหลักและเลือกโหมด Claude ให้เหมาะกับงานได้</td>
+            <td>แชร์งานที่อยากลองให้ Claude ช่วยคนละ 1 งาน</td>
+          </tr>
+          <tr>
+            <td>รอบที่ 2: ใช้กับงานจริง</td>
+            <td>สอน Claude ช่วยงาน 99%</td>
+            <td>ได้ prompt ที่ใช้กับงานจริงอย่างน้อย 2 ชุด</td>
+            <td>จับคู่รีวิว prompt แล้วปรับให้ชัดขึ้น</td>
+          </tr>
+          <tr>
+            <td>รอบที่ 3: ทำงานร่วมกับ AI</td>
+            <td>Claude Cowork จาก borntodev + 9Expert</td>
+            <td>เห็น workflow ที่ AI ช่วยทีมได้ พร้อมจุดตรวจทาน</td>
+            <td>ออกแบบ workflow ทีม 1 เรื่อง</td>
+          </tr>
+          <tr>
+            <td>รอบที่ 4: ต่อยอด</td>
+            <td>Third Leademption เรื่อง Skill/Agent</td>
+            <td>ได้ร่าง Skill หรือคู่มือให้ AI ทำงานซ้ำได้</td>
+            <td>นำเสนอ Skill ฉบับร่างและรับ feedback</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="worksheet" aria-labelledby="worksheet-title">
+      <div class="section-head">
+        <div>
+          <h2 id="worksheet-title">ใบงานหลังเรียน</h2>
+        </div>
+        <p>ใช้ส่วนนี้ตอนส่งให้เพื่อนร่วมงาน เพื่อเปลี่ยนการดูวิดีโอให้เป็นผลลัพธ์ที่นำไปใช้ต่อได้จริง</p>
+      </div>
+
+      <div class="worksheet-grid">
+        <article class="worksheet">
+          <h3>เช็กลิสต์ผู้เรียน</h3>
+          <ul class="checklist">
+            <li><label><input type="checkbox"> ดูวิดีโอแนะนำเมนู Claude และลองเปิดใช้งานด้วยตัวเอง</label></li>
+            <li><label><input type="checkbox"> เขียน prompt สำหรับงานจริงของตัวเองอย่างน้อย 2 เวอร์ชัน</label></li>
+            <li><label><input type="checkbox"> ใช้ Claude ช่วยร่างงานหนึ่งชิ้น แล้วตรวจทานความถูกต้องก่อนใช้</label></li>
+            <li><label><input type="checkbox"> ออกแบบ workflow ที่ AI ช่วยทีมได้ 1 เรื่อง</label></li>
+            <li><label><input type="checkbox"> สรุปข้อควรระวัง เช่น ข้อมูลลับ ความถูกต้อง และการอ้างอิงแหล่งที่มา</label></li>
+            <li><label><input type="checkbox"> แชร์ตัวอย่าง prompt หรือผลลัพธ์ที่ดีที่สุดให้ทีม</label></li>
+          </ul>
+        </article>
+
+        <article class="note-box">
+          <h3>บันทึกส่วนตัว</h3>
+          <p>งานที่อยากให้ Claude ช่วยมากที่สุด</p>
+          <textarea aria-label="งานที่อยากให้ Claude ช่วยมากที่สุด"></textarea>
+          <p>prompt ที่ลองแล้วได้ผลดี</p>
+          <textarea aria-label="prompt ที่ลองแล้วได้ผลดี"></textarea>
+          <p>สิ่งที่ต้องระวังก่อนเอาผลลัพธ์ไปใช้จริง</p>
+          <textarea aria-label="สิ่งที่ต้องระวัง"></textarea>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="facilitator-title">
+      <div class="section-head">
+        <div>
+          <h2 id="facilitator-title">คู่มือสั้นสำหรับผู้สอน</h2>
+        </div>
+        <p>ใช้เปิดคลาสหรือส่งให้ทีมเรียนเองก็ได้ ถ้าจะทำเป็นเวิร์กช็อป แนะนำให้มีช่วงทดลองใช้งานจริงระหว่างคลิป</p>
+      </div>
+
+      <div class="worksheet-grid">
+        <article class="worksheet">
+          <h3>คำถามชวนคุย</h3>
+          <ol class="prompt-list">
+            <li>งานใดในทีมที่เสียเวลาซ้ำ ๆ และ Claude น่าจะช่วยลดเวลาตรงนั้นได้?</li>
+            <li>ผลลัพธ์จาก AI ประเภทใดที่ต้องให้คนตรวจเสมอ?</li>
+            <li>ถ้าจะทำคู่มือให้ AI ช่วยงานทีม ควรใส่กติกาอะไรบ้าง?</li>
+            <li>เราจะวัดผลอย่างไรว่าใช้ Claude แล้วงานดีขึ้น ไม่ใช่แค่เร็วขึ้น?</li>
+          </ol>
+        </article>
+
+        <article class="note-box">
+          <h3>ตัวอย่างงานมอบหมาย</h3>
+          <p>ให้ผู้เรียนเลือกงานจริง 1 งาน แล้วส่งผลลัพธ์ 3 อย่างภายในสัปดาห์นี้: prompt ที่ใช้, ผลลัพธ์ก่อนตรวจทาน, และเวอร์ชันหลังปรับแก้โดยมนุษย์ พร้อมสรุปว่า AI ช่วยประหยัดเวลาในขั้นตอนไหน</p>
+        </article>
+      </div>
+
+      <div class="footer-note">
+        หมายเหตุ: หน้านี้ทำหน้าที่เป็นสมุดรวบรวมเส้นทางเรียนและลิงก์ไปยังวิดีโอต้นฉบับเท่านั้น ลิขสิทธิ์วิดีโอและเนื้อหาหลักยังเป็นของเจ้าของช่อง YouTube แต่ละช่อง ควรใช้เพื่อการเรียนรู้ภายในและอ้างอิงกลับไปยังแหล่งต้นฉบับเสมอ
+      </div>
+    </section>
+  </main>
+</body>
+</html>
